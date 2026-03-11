@@ -46,7 +46,9 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.network)
             implementation(projects.core.common)
+            implementation(projects.core.ui)
             implementation(projects.feature.home.domain)
+//            implementation(projects.feature.home.data)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
