@@ -26,8 +26,6 @@ import com.example.ui.navigation.HomeNavgraph
 import com.example.ui.statusBar.SetStatusBarColor
 import org.jetbrains.compose.resources.painterResource
 
-import productbrowserapp.composeapp.generated.resources.Res
-import productbrowserapp.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview

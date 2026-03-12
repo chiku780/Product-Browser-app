@@ -38,11 +38,10 @@ class ProductsApiService(
 
     suspend fun searchProducts(query: String): Result<AllProductResponse> {
         return try {
-            println("Fetching district list...")
-            val response = httpClient.get("products/"){
+            println("Fetching search product list... $query")
+            val response = httpClient.get("products/search"){
                 parameter("q", query)
-            }
-                .body<AllProductResponse>()
+            }.body<AllProductResponse>()
             println("✅ District API response: $response")
             Result.success(response)
         } catch (e: Exception) {

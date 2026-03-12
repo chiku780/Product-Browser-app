@@ -6,12 +6,19 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.common.utils.animation.sreenTransition.enterTransition
+import com.example.common.utils.animation.sreenTransition.exitTransition
+import com.example.common.utils.animation.sreenTransition.popEnterTransition
+import com.example.common.utils.animation.sreenTransition.popExitTransition
 import com.example.common.navigation.BaseNavGraph
 import com.example.common.navigation.NavigationHomeRoute
 import com.example.ui.screens.home.HomeScreen
 import com.example.ui.screens.productDetails.ProductDetailsScreen
 import com.example.ui.screens.splash.SplashScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 object HomeNavgraph : BaseNavGraph {
 
@@ -40,26 +47,26 @@ object HomeNavgraph : BaseNavGraph {
 
             composable(
                 route = NavigationHomeRoute.Home.route,
-                enterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(400)
-                    )
-                },
+                enterTransition = enterTransition,
+                exitTransition = exitTransition,
+                popEnterTransition = popEnterTransition,
+                popExitTransition = popExitTransition
             ) {
                 HomeScreen(navHostController)
             }
 
             composable(
-                route = NavigationHomeRoute.ProductDetails.route,
-                enterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(400)
-                    )
-                },
-            ) {
-                ProductDetailsScreen(navHostController)
+                route = "${NavigationHomeRoute.ProductDetails.route}/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                enterTransition = enterTransition,
+                exitTransition = exitTransition,
+                popEnterTransition = popEnterTransition,
+                popExitTransition = popExitTransition
+            ) { backStackEntry ->
+//                val id = backStackEntry.arguments?.getString("id") ?: ""
+
+//                print("here is is $id")
+                ProductDetailsScreen(navHostController,"5")
             }
 
         }

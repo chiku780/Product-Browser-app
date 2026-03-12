@@ -44,6 +44,7 @@ googleGmsGoogleServices = "4.4.4"
 googleFirebaseCrashlytics = "3.0.6"
 runtime = "1.9.5"
 foundation = "1.9.5"
+landScapist = "2.9.5"
 
 
 [libraries]
@@ -87,6 +88,8 @@ compose-material-icons-extended = { module = "org.jetbrains.compose.material:mat
 kamel-image = { module = "media.kamel:kamel-image", version.ref = "kamelImage" }
 androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+
+landscapist-coil = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landScapist" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

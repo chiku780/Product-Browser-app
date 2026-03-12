@@ -66,11 +66,8 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.kamel.image)
             implementation("media.kamel:kamel-image:0.9.1")
-            implementation("org.jetbrains.compose.material3:material3:1.2.1")
-
-//            implementation("io.coil-kt.coil3:coil-compose:3.3.0")
-            // plus network backend if loading from URL:
-//            implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
+            implementation(libs.landscapist.coil)
+            implementation(libs.ktor.client.core)
 
         }
         commonTest.dependencies {

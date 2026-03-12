@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,7 +31,11 @@ import com.appynitty.ui.library.toast.ToastType
 import com.example.common.navigation.NavigationHomeRoute
 import com.example.domain.events.homeScreen.HomeScreenEvents
 import com.example.domain.repository.ProductRepository
+import com.example.ui.navigation.navigateSingleTop
+import com.example.ui.screens.home.component.NoDataFound
+import com.example.ui.screens.home.component.NoInternetConnection
 import com.example.ui.screens.home.component.ProductCard
+import com.example.ui.screens.home.component.ProgressOverlay
 import com.example.ui.screens.home.component.SearchTopBar
 import com.example.ui.screens.home.viewModel.HomeScreenViewmodel
 import kotlinx.coroutines.launch
@@ -39,11 +46,13 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeScreen(navHostController: NavHostController) {
 
     val viewModel = koinViewModel<HomeScreenViewmodel>()
-    val cameraUtil = koinInject<ProductRepository>()
+    val state = rememberPullToRefreshState()
+    val isInternetOn by viewModel.isInternetOn.collectAsState(initial = false)
     var isLoading by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    var isRefresh by remember { mutableStateOf(false) }
 
     val productList by viewModel.productList.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.query.collectAsStateWithLifecycle()
 
 println("product lsit $productList")
 
@@ -83,7 +92,7 @@ println("product lsit $productList")
                     }
 
                     is HomeScreenEvents.OnProductClicked -> {
-                        navHostController.navigate(NavigationHomeRoute.ProductDetails.route)
+                        navHostController.navigateSingleTop("${NavigationHomeRoute.ProductDetails.route}/${event.id}")
                     }
                 }
             }
@@ -95,7 +104,7 @@ println("product lsit $productList")
         topBar = {
             SearchTopBar(
                 query = searchQuery,
-                onQueryChange = { searchQuery = it }
+                viewModel
             )
         }
     ) { scaffoldPadding ->
@@ -109,28 +118,48 @@ println("product lsit $productList")
 
             Spacer(modifier = Modifier.size(12.dp))
 
-            LazyColumn {
+            PullToRefreshBox(
+                state = state, // Pass the state
+                isRefreshing = isRefresh, // Observe the loading state
+                onRefresh = { isRefresh = false
+                    viewModel.onEvents(HomeScreenUiEvents.SwipeRefresh)
+                } // Trigger data refresh
+            ) {
+                if (isInternetOn) {
+                    if (productList?.isEmpty() == true) {
+                        if (!isLoading) NoDataFound()
+                    } else {
+                        LazyColumn {
 
-                items(
-                    items = productList.orEmpty(),
-                    key = { product -> product?.id ?: 0 }
-                ) { product ->
+                            items(
+                                items = productList.orEmpty(),
+                                key = { product -> product?.id ?: 0 }
+                            ) { product ->
 
-                    product?.let {
-                        ProductCard(
-                            name = it.title,
-                            price = it.price,
-                            thumbnail = it.thumbnail,
-                            id= it.id,
-                            viewModel
-                        )
+                                product?.let {
+                                    ProductCard(
+                                        name = it.title,
+                                        price = it.price,
+                                        thumbnail = it.thumbnail,
+                                        id = it.id,
+                                        viewModel
+                                    )
+                                }
+
+                            }
+
+                        }
                     }
-
+                } else {
+                    NoInternetConnection()
                 }
-
             }
+
         }
 
+        if (isLoading) {
+            ProgressOverlay()
+        }
         CustomToast()
     }
     }

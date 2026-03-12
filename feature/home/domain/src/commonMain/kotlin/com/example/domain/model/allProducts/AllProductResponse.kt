@@ -57,47 +57,47 @@ data class ReviewsItem(
 @Serializable
 data class ProductsItem(
 
-//	val images: List<String?>? = null,
+	val images: List<String?>? = null,
 
 	val thumbnail: String? = null,
 
-//	val minimumOrderQuantity: Int? = null,
+	val minimumOrderQuantity: Int? = null,
 
-//	val rating: Double? = null,
+	val rating: Double? = null,
 
-//	val returnPolicy: String? = null,
+	val returnPolicy: String? = null,
 //
-//	val description: String? = null,
+	val description: String? = null,
 //
-//	val weight: Int? = null,
+	val weight: Double? = null,
 //
-//	val warrantyInformation: String? = null,
+	val warrantyInformation: String? = null,
 
 	val title: String? = null,
 
-//	val tags: List<String?>? = null,
+	val tags: List<String?>? = null,
 //
-//	val discountPercentage: Double? = null,
+	val discountPercentage: Double? = null,
 //
-//	val reviews: List<ReviewsItem?>? = null,
+	val reviews: List<ReviewsItem?>? = null,
 //
 	val price: Double? = null,
 //
 //	val meta: Meta? = null,
 //
-//	val shippingInformation: String? = null,
+	val shippingInformation: String? = null,
 //
 	val id: Int? = null,
 //
-//	val availabilityStatus: String? = null,
+	val availabilityStatus: String? = null,
 //
-//	val category: String? = null,
+	val category: String? = null,
 //
-//	val stock: Int? = null,
+	val stock: Int? = null,
 //
-//	val sku: String? = null,
+	val sku: String? = null,
 //
 //	val dimensions: Dimensions? = null,
 //
-//	val brand: String? = null
+	val brand: String? = null
 )

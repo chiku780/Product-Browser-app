@@ -7,6 +7,6 @@ import com.example.network.client.ProvideHttpClient
 import org.koin.dsl.module
 
 fun getHomeDataModule() = module {
-    single { ProductsApiService(get())   }
+    single { ProductsApiService(get()) }
     factory<ProductRepository> { ProductRepositoryImpl(apiService = get()) }
 }

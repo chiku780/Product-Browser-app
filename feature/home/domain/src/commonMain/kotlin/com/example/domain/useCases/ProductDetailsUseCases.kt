@@ -2,6 +2,9 @@ package com.example.domain.useCases
 
 import com.appynitty.common.events.CommonEvents
 import com.appynitty.network.base.BaseResult
+import com.example.domain.events.homeScreen.HomeScreenEvents
+import com.example.domain.events.productDetails.ProductDetailsScreenEvents
+import com.example.domain.model.allProducts.ProductsItem
 import com.example.domain.repository.ProductRepository
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.catch
@@ -37,7 +40,8 @@ class ProductDetailsUseCases(private val repository: ProductRepository) {
                     is BaseResult.Success -> {
                         try {
                             val result = baseResult.data
-//                            emit(HomeScreenEvents.GetAllProductList(result?.products))
+                           val prductValue = result?.toKeyValueList()
+                            emit(ProductDetailsScreenEvents.GetProductDetails(prductValue,result?.thumbnail,result?.title))
                             println("token is $result")
                         } catch (e: Exception) {
                             emit(CommonEvents.ErrorMessage( "something_went_wrong"))
@@ -49,5 +53,26 @@ class ProductDetailsUseCases(private val repository: ProductRepository) {
                     }
                 }
             }
+    }
+
+    fun ProductsItem.toKeyValueList(): List<Pair<String?, String?>> {
+        return listOf(
+            "Id" to id.toString(),
+            "Title" to title,
+            "Description" to description,
+            "Category" to category,
+            "Price" to price.toString(),
+            "Discount %" to discountPercentage.toString(),
+            "Rating" to rating.toString(),
+            "Stock" to stock.toString(),
+            "Brand" to (brand ?: ""),
+            "SKU" to sku,
+            "Weight" to weight.toString(),
+            "Warranty" to warrantyInformation,
+            "Shipping" to shippingInformation,
+            "Availability" to availabilityStatus,
+            "Return Policy" to returnPolicy,
+            "Minimum Order" to minimumOrderQuantity.toString()
+        )
     }
 }

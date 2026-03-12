@@ -1,5 +1,6 @@
 package com.example.productbrowserapp.di
 
+import com.example.common.di.iosCommonModule
 import com.example.data.di.getHomeDataModule
 import com.example.domain.di.getHomeDomainModule
 import com.example.network.di.coreNetworkModule
@@ -13,7 +14,8 @@ actual class KoinInitializer {
                 getHomeDomainModule(),
                 getHomeDataModule(),
                 getHomeUiModule(),
-                coreNetworkModule()
+                coreNetworkModule(),
+                iosCommonModule
             )
         }
     }
