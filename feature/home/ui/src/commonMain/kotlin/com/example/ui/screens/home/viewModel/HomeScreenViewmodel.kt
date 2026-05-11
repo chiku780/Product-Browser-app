@@ -2,21 +2,20 @@ package com.example.ui.screens.home.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.appynitty.common.events.CommonEvents
 import com.example.common.connectivityStatus.ConnectivityStatus
-import com.example.domain.events.homeScreen.HomeScreenEvents
-import com.example.domain.events.homeScreen.HomeScreenEvents.*
-import com.example.domain.model.allProducts.ProductsItem
+import com.example.domain.events.homeScreen.AllProductList
 import com.example.domain.useCases.GetAllProductUseCases
 import com.example.domain.useCases.SearchProductUseCases
+import com.example.ui.events.UiEvent
+import com.example.ui.events.flowHandle.collectWithUiHandling
+import com.example.ui.screens.home.HomeScreenEvent
 import com.example.ui.screens.home.HomeScreenUiEvents
+import com.example.ui.screens.home.HomeScreenUiState
 import com.example.ui.screens.share.NavArgsShare
-import io.ktor.events.Events
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
@@ -24,9 +23,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeScreenViewmodel(
     private val getAllProductUseCases: GetAllProductUseCases,
@@ -35,14 +33,15 @@ class HomeScreenViewmodel(
     private val navArgsShare : NavArgsShare
 ) : ViewModel() {
 
-    private val _commonEventChannel = Channel<CommonEvents>()
-    val commonEvents = _commonEventChannel.receiveAsFlow()
+    private val _uiState: MutableStateFlow<HomeScreenUiState> = MutableStateFlow(HomeScreenUiState())
+    val uiState = _uiState.asStateFlow()
 
-    private val _homeChannel = Channel<HomeScreenEvents>()
-    val homeChannel = _homeChannel.receiveAsFlow()
+    private val _event = MutableSharedFlow<UiEvent>()
+    val event = _event.asSharedFlow()
 
-    private val _productList = MutableStateFlow<List<ProductsItem?>?>(emptyList())
-    val productList = _productList.asStateFlow()
+    private val _homeScreenEvent = MutableSharedFlow<HomeScreenEvent>()
+    val homeScreenEvent = _homeScreenEvent.asSharedFlow()
+
 
     private val _query = MutableStateFlow("")
     val query = _query.asStateFlow()
@@ -72,16 +71,14 @@ class HomeScreenViewmodel(
         }
     }
 
-    fun setProductList(data:List<ProductsItem?>?){
-        _productList.value = data
-    }
+
 
     fun onEvents(events: HomeScreenUiEvents){
         when (events) {
             is HomeScreenUiEvents.OnItemClicked -> {
                 viewModelScope.launch {
                    navArgsShare.id = events.id
-                    _homeChannel.send(OnProductClicked(events.id))
+                    _homeScreenEvent.emit(HomeScreenEvent.OnProductClicked(events.id))
                 }
             }
             is HomeScreenUiEvents.OnSearchQuery -> {
@@ -104,46 +101,39 @@ class HomeScreenViewmodel(
     }
 
    private fun searchProducts(search: String){
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-
-
-                searchProductUseCases(search).collect {
-                    it?.let { it1 ->
-                        when (it1) {
-                            is CommonEvents -> {
-                                _commonEventChannel.send(it1)
-                            }
-
-                            is HomeScreenEvents -> {
-                                _homeChannel.send(it1)
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
+       viewModelScope.launch {
+           searchProductUseCases(search).collectWithUiHandling(
+               scope = this,
+               onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
+               uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
+               onSuccess = { data ->
+                   val result = data as? AllProductList ?: return@collectWithUiHandling
+                   _uiState.update {
+                       it.copy(
+                           productList = result.productList
+                       )
+                   }
+               },
+           )
+       }
     }
 
     private fun getAllProducts(){
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    getAllProductUseCases().collect {
-                        it?.let { it1 ->
-                            when (it1) {
-                                is CommonEvents -> {
-                                    _commonEventChannel.send(it1)
-                                }
-
-                                is HomeScreenEvents -> {
-                                    _homeChannel.send(it1)
-                                }
-                            }
-                        }
+        viewModelScope.launch {
+            getAllProductUseCases().collectWithUiHandling(
+                scope = this,
+                onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
+                uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
+                onSuccess = { data ->
+                    val result = data as? AllProductList ?: return@collectWithUiHandling
+                    _uiState.update {
+                        it.copy(
+                            productList = result.productList
+                        )
                     }
-                }
-            }
+                },
+            )
+        }
     }
 
 }

@@ -23,14 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.appynitty.common.events.CommonEvents
 import com.appynitty.ui.colors.CustomColorsConstant
 import com.appynitty.ui.library.toast.CustomToast
-import com.appynitty.ui.library.toast.ToastController
-import com.appynitty.ui.library.toast.ToastType
 import com.example.common.navigation.NavigationHomeRoute
-import com.example.domain.events.homeScreen.HomeScreenEvents
-import com.example.domain.repository.ProductRepository
+import com.example.ui.events.HandleUiEvents
 import com.example.ui.navigation.navigateSingleTop
 import com.example.ui.screens.home.component.NoDataFound
 import com.example.ui.screens.home.component.NoInternetConnection
@@ -39,7 +35,6 @@ import com.example.ui.screens.home.component.ProgressOverlay
 import com.example.ui.screens.home.component.SearchTopBar
 import com.example.ui.screens.home.viewModel.HomeScreenViewmodel
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -50,55 +45,21 @@ fun HomeScreen(navHostController: NavHostController) {
     val isInternetOn by viewModel.isInternetOn.collectAsState(initial = false)
     var isLoading by remember { mutableStateOf(false) }
     var isRefresh by remember { mutableStateOf(false) }
-
-    val productList by viewModel.productList.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.query.collectAsStateWithLifecycle()
 
-println("product lsit $productList")
-
     LaunchedEffect(Unit) {
-
         launch {
-            viewModel.commonEvents.collect { event ->
+            viewModel.homeScreenEvent.collect { event ->
                 when (event) {
-                    is CommonEvents.IsLoading -> {
-                        isLoading = event.isLoading
-                    }
-
-                    is CommonEvents.ShowMessage -> {
-                        println("message is ${event.msg}")
-                        event?.msg?.let { ToastController.show(it, ToastType.WARNING) }
-                    }
-
-                    is CommonEvents.ErrorMessage -> {
-                        println("message is ${event.errorMessage}")
-                        event?.errorMessage?.let { ToastController.show(it, ToastType.ERROR) }
-                    }
-
-                    is CommonEvents.ShowSuccessMessage -> {
-                        event?.msg?.let { ToastController.show(it, ToastType.SUCCESS) }
-                    }
-
+                    is HomeScreenEvent.OnProductClicked -> navHostController.navigateSingleTop("${NavigationHomeRoute.ProductDetails.route}/${event.id}")
                 }
             }
         }
-
-        launch {
-            viewModel.homeChannel.collect { event ->
-                when (event) {
-
-                    is HomeScreenEvents.GetAllProductList -> {
-                     viewModel.setProductList(event.result)
-                    }
-
-                    is HomeScreenEvents.OnProductClicked -> {
-                        navHostController.navigateSingleTop("${NavigationHomeRoute.ProductDetails.route}/${event.id}")
-                    }
-                }
-            }
-        }
-
     }
+
+    isLoading = uiState.showLoading
+    HandleUiEvents(viewModel.event)
 
     Scaffold(
         topBar = {
@@ -126,13 +87,13 @@ println("product lsit $productList")
                 } // Trigger data refresh
             ) {
                 if (isInternetOn) {
-                    if (productList?.isEmpty() == true) {
+                    if (uiState.productList?.isEmpty() == true) {
                         if (!isLoading) NoDataFound()
                     } else {
                         LazyColumn {
 
                             items(
-                                items = productList.orEmpty(),
+                                items = uiState.productList.orEmpty(),
                                 key = { product -> product?.id ?: 0 }
                             ) { product ->
 

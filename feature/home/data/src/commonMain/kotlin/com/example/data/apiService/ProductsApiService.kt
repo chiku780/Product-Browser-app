@@ -1,12 +1,10 @@
 package com.example.data.apiService
 
-import com.example.domain.model.allProducts.AllProductResponse
-import com.example.domain.model.allProducts.ProductsItem
-import com.example.network.client.ProvideHttpClient
+import com.example.data.model.AllProductResponse
+import com.example.data.model.ProductsItem
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 
 class ProductsApiService(

@@ -1,52 +1,43 @@
 package com.example.domain.useCases
 
-import com.appynitty.common.events.CommonEvents
-import com.appynitty.network.base.BaseResult
-import com.example.domain.events.homeScreen.HomeScreenEvents
+import com.example.common.result.ApiResult
+import com.example.common.result.BaseResult
+import com.example.domain.events.homeScreen.AllProductList
 import com.example.domain.repository.ProductRepository
-import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
-
-class SearchProductUseCases(private val repository: ProductRepository) {
+class SearchProductUseCases(private val repository: ProductRepository.Remote) {
     operator fun invoke(query:String) = flow {
         println("code is working")
         repository.searchProducts(query)
             .onStart {
-                emit(CommonEvents.IsLoading(true))
+                emit(BaseResult.Loading(true))
             }
             .catch { exception ->
-                emit(CommonEvents.IsLoading(false))
-                when (exception) {
-                    is IOException -> {
-                        emit(CommonEvents.ErrorMessage("network_failure"))
-                    }
-                    else -> {
-                        emit(CommonEvents.ErrorMessage("connection_timeout"))
-                    }
-                }
+                emit(BaseResult.Loading(false))
+                emit(BaseResult.Error(exception ))
             }
             .collect { baseResult ->
-                emit(CommonEvents.IsLoading(false))
+                emit(BaseResult.Loading(false))
                 println("Debug: My message here $baseResult")
                 when (baseResult) {
-                    is BaseResult.Error -> {
-                        emit(CommonEvents.ErrorMessage( "something_went_wrong") )
+                    is ApiResult.Error -> {
+                        emit(BaseResult.Error(baseResult.exception ))
                     }
-                    is BaseResult.Success -> {
+                    is ApiResult.Success -> {
                         try {
                             val result = baseResult.data
-                            emit(HomeScreenEvents.GetAllProductList(result?.products))
+                            emit(BaseResult.Success(
+                                AllProductList(
+                                    result.products
+                                )
+                            ))
                             println("token is $result")
                         } catch (e: Exception) {
-                            emit(CommonEvents.ErrorMessage( "something_went_wrong"))
+                            emit(BaseResult.Error(e ))
                         }
-                    }
-
-                    is BaseResult.Exception<*> -> {
-                        emit(CommonEvents.ErrorMessage(baseResult.message ?: "something_went_wrong"))
                     }
                 }
             }

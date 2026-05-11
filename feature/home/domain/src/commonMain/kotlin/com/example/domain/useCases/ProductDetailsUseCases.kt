@@ -1,61 +1,55 @@
 package com.example.domain.useCases
 
-import com.appynitty.common.events.CommonEvents
-import com.appynitty.network.base.BaseResult
-import com.example.domain.events.homeScreen.HomeScreenEvents
-import com.example.domain.events.productDetails.ProductDetailsScreenEvents
-import com.example.domain.model.allProducts.ProductsItem
+import com.example.common.result.ApiResult
+import com.example.common.result.BaseResult
+import com.example.domain.events.productDetails.GetProductDetails
+import com.example.domain.model.Product
 import com.example.domain.repository.ProductRepository
-import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
 
-class ProductDetailsUseCases(private val repository: ProductRepository) {
+class ProductDetailsUseCases(private val repository: ProductRepository.Remote) {
     operator fun invoke(id:Int) = flow {
+
         println("code is working")
         repository.productDetails(id)
             .onStart {
-                emit(CommonEvents.IsLoading(true))
+                emit(BaseResult.Loading(true))
             }
             .catch { exception ->
-                emit(CommonEvents.IsLoading(false))
-                when (exception) {
-                    is IOException -> {
-                        emit(CommonEvents.ErrorMessage("network_failure"))
-                    }
-                    else -> {
-                        emit(CommonEvents.ErrorMessage("connection_timeout"))
-                    }
-                }
+                emit(BaseResult.Loading(false))
+                emit(BaseResult.Error(exception ))
             }
             .collect { baseResult ->
-                emit(CommonEvents.IsLoading(false))
+                emit(BaseResult.Loading(false))
                 println("Debug: My message here $baseResult")
                 when (baseResult) {
-                    is BaseResult.Error -> {
-                        emit(CommonEvents.ErrorMessage( "something_went_wrong") )
+                    is ApiResult.Error -> {
+                        emit(BaseResult.Error(baseResult.exception ))
                     }
-                    is BaseResult.Success -> {
+                    is ApiResult.Success -> {
                         try {
                             val result = baseResult.data
                            val prductValue = result?.toKeyValueList()
-                            emit(ProductDetailsScreenEvents.GetProductDetails(prductValue,result?.thumbnail,result?.title))
+//                            emit(ProductDetailsScreenEvents.GetProductDetails(prductValue,result?.thumbnail,result?.title))
+
+                            emit(BaseResult.Success(
+                                GetProductDetails(
+                                    prductValue, result?.thumbnail, result?.title
+                                )
+                            ))
                             println("token is $result")
                         } catch (e: Exception) {
-                            emit(CommonEvents.ErrorMessage( "something_went_wrong"))
+                            emit(BaseResult.Error(e ))
                         }
-                    }
-
-                    is BaseResult.Exception<*> -> {
-                        emit(CommonEvents.ErrorMessage(baseResult.message ?: "something_went_wrong"))
                     }
                 }
             }
     }
 
-    fun ProductsItem.toKeyValueList(): List<Pair<String?, String?>> {
+    fun Product.toKeyValueList(): List<Pair<String?, String?>> {
         return listOf(
             "Id" to id.toString(),
             "Title" to title,

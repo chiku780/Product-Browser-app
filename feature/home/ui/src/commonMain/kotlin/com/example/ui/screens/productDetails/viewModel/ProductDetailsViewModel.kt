@@ -2,21 +2,22 @@ package com.example.ui.screens.productDetails.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.appynitty.common.events.CommonEvents
 import com.example.common.connectivityStatus.ConnectivityStatus
-import com.example.domain.events.productDetails.ProductDetailsScreenEvents
+import com.example.domain.events.productDetails.GetProductDetails
 import com.example.domain.useCases.ProductDetailsUseCases
+import com.example.ui.events.UiEvent
+import com.example.ui.events.flowHandle.collectWithUiHandling
 import com.example.ui.screens.productDetails.ProductDetailsUiEvents
+import com.example.ui.screens.productDetails.ProductScreenEvent
+import com.example.ui.screens.productDetails.ProductScreenUiState
 import com.example.ui.screens.share.NavArgsShare
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ProductDetailsViewModel (
     private val productDetailsUseCases: ProductDetailsUseCases,
@@ -27,21 +28,15 @@ class ProductDetailsViewModel (
     init {
         navArgsShare?.id?.let { getProductDetails(it) }
     }
-    private val _commonEventChannel = Channel<CommonEvents>()
-    val commonEvents = _commonEventChannel.receiveAsFlow()
 
-    private val _productDetailsChannel = Channel<ProductDetailsScreenEvents>()
-    val productDetailsChannel = _productDetailsChannel.receiveAsFlow()
+    private val _uiState: MutableStateFlow<ProductScreenUiState> = MutableStateFlow(ProductScreenUiState())
+    val uiState = _uiState.asStateFlow()
 
-    private val _productDetailsList = MutableStateFlow<List<Pair<String?, String?>>?>(emptyList())
-    val productDetailsList = _productDetailsList.asStateFlow()
+    private val _event = MutableSharedFlow<UiEvent>()
+    val event = _event.asSharedFlow()
 
-    private val _thumbNail = MutableStateFlow<String?>(null)
-    val thumbNail = _thumbNail.asStateFlow()
-
-    private val _tittle = MutableStateFlow<String?>(null)
-    val tittle = _tittle.asStateFlow()
-
+    private val _productScreenEvent = MutableSharedFlow<ProductScreenEvent>()
+    val productScreenEvent = _productScreenEvent.asSharedFlow()
 
     val isInternetOn: Flow<Boolean> = connectivityStatus.isConnected()
 
@@ -59,29 +54,21 @@ class ProductDetailsViewModel (
         }
     }
 
-    fun setProductList(data: List<Pair<String?, String?>>?, thumbNail: String?, tittle: String?){
-        _productDetailsList.value = data
-        _thumbNail.value = thumbNail
-        _tittle.value = tittle
-    }
-
     private fun getProductDetails(id: Int){
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                productDetailsUseCases(id).collect {
-                    it?.let { it1 ->
-                        when (it1) {
-                            is CommonEvents -> {
-                                _commonEventChannel.send(it1)
-                            }
-                            is ProductDetailsScreenEvents -> {
-                                _productDetailsChannel.send(it1)
-                            }
-                        }
+            productDetailsUseCases(id).collectWithUiHandling(
+                scope = this,
+                onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
+                uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
+                onSuccess = { data ->
+                    val result = data as? GetProductDetails ?: return@collectWithUiHandling
+                    _uiState.update {
+                        it.copy(
+                            productDetails = result.result, thumbnail = result.thumbNail ?: "", title = result.tittle ?: ""
+                        )
                     }
-                }
-
-            }
+                },
+            )
         }
     }
 

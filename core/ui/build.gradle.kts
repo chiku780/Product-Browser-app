@@ -63,6 +63,7 @@ kotlin {
         }
         commonMain.dependencies {
 
+            implementation(projects.core.common)
 
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -76,6 +77,8 @@ kotlin {
             implementation(libs.resources.compose)
             implementation(libs.koin.compose.viewmodel)
 //            implementation(libs.lifecycle.viewmodel.compose)
+
+            implementation(libs.ktor.client.core)
 
         }
         commonTest.dependencies {
