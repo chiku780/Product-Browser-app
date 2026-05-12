@@ -1,0 +1,19 @@
+CREATE TABLE ProductListTable (
+    id TEXT PRIMARY KEY ,
+    name TEXT,
+    role TEXT
+);
+
+insertProduct:
+INSERT OR REPLACE INTO ProductListTable(id, name,role)
+VALUES (?, ?,?);
+
+
+getAllProduct:
+SELECT *
+FROM ProductListTable;
+
+
+removeAllProduct:
+DELETE FROM ProductListTable;
+

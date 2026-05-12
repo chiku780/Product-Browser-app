@@ -1,6 +1,7 @@
 package com.example.domain.repository
 
 import com.example.common.result.ApiResult
+import com.example.database.model.ProductListDb
 import com.example.domain.model.Product
 import com.example.domain.model.ProductList
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,8 @@ interface ProductRepository {
     }
 
     interface Local {
-
+        suspend fun saveProduct()
+        suspend fun getProduct() : Flow<List<ProductListDb>>
     }
 
 }

@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
-class GetAllProductUseCases(private val repository: ProductRepository.Remote) {
+class GetAllProductUseCases(private val repository: ProductRepository.Remote,
+                            private val repositoryLocal: ProductRepository.Local) {
     operator fun invoke() = flow {
         println("code is working")
         repository.getAllProducts()
@@ -35,6 +36,7 @@ class GetAllProductUseCases(private val repository: ProductRepository.Remote) {
                                     result.products
                                 )
                             ))
+                            repositoryLocal.saveProduct()
                         } catch (e: Exception) {
                             emit(BaseResult.Error(e ))
                         }

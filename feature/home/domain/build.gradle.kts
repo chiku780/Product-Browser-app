@@ -45,6 +45,7 @@ kotlin {
 
             implementation(projects.core.network)
             implementation(projects.core.common)
+            implementation(projects.core.database)
 
             implementation(compose.runtime)
             implementation(compose.foundation)

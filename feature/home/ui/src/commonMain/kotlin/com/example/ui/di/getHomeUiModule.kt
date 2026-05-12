@@ -15,7 +15,8 @@ fun getHomeUiModule() = module {
             getAllProductUseCases = get<GetAllProductUseCases>(),
             searchProductUseCases = get<SearchProductUseCases>(),
             connectivityStatus = get(),
-            navArgsShare = get ()
+            navArgsShare = get (),
+            getAllProductListUseCases = get()
         )
     }
     viewModel {

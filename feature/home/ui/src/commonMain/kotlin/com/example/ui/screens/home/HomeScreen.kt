@@ -52,7 +52,7 @@ fun HomeScreen(navHostController: NavHostController) {
         launch {
             viewModel.homeScreenEvent.collect { event ->
                 when (event) {
-                    is HomeScreenEvent.OnProductClicked -> navHostController.navigateSingleTop("${NavigationHomeRoute.ProductDetails.route}/${event.id}")
+                    is HomeScreenEvent.OnProductClicked -> navHostController.navigateSingleTop(NavigationHomeRoute.ProductDetails.route)
                 }
             }
         }

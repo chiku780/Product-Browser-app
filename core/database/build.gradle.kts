@@ -1,3 +1,4 @@
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -8,7 +9,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.sqlDelight)
 }
 
 kotlin {
@@ -33,21 +34,19 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        val desktopMain by getting
+        iosMain.dependencies {
+            implementation(libs.sqldelight.ios)
+        }
 
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.kotlinx.coroutines.play.services)
+            implementation(libs.sqldelight.android)
         }
+
         commonMain.dependencies {
-
-            implementation(projects.core.network)
-            implementation(projects.feature.home.domain)
-            implementation(projects.core.common)
-            implementation(projects.core.database)
-
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -56,16 +55,18 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-
             implementation(libs.koin.core)
+            implementation(libs.resources.compose)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.client.core)
-
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
-        desktopMain.dependencies {
+        jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
@@ -73,7 +74,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.example.feature.home.data"
+    namespace = "com.example.core.database"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
@@ -102,10 +103,19 @@ dependencies {
 
 compose.desktop {
     application {
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.example.feature.home.data"
+            packageName = "com.example.core.database"
             packageVersion = "1.0.0"
+        }
+    }
+}
+
+sqldelight {
+    databases {
+        create("AppDatabase") {
+            packageName.set("com.example.core.database")
         }
     }
 }

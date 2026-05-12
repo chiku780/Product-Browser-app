@@ -34,7 +34,7 @@ resourcesCompose = "0.26.0"
 moko = "0.18.0"
 lifecycleViewModelCompose = "2.8.0"
 datastorePreferences = "1.1.7"
-sqldelight = "2.0.2"
+sqldelight = "2.3.2"
 securityCrypto = "1.1.0-beta01"
 settings = "1.0.2"
 lifecycleService = "2.10.0"
@@ -91,6 +91,12 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 
 landscapist-coil = { module = "com.github.skydoves:landscapist-coil3", version.ref = "landScapist" }
 
+sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
+sqldelight-ios = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
+sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
+sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -101,3 +107,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.9.0" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

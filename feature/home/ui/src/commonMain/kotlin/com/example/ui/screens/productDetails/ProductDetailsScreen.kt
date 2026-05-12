@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +43,7 @@ import productbrowserapp.feature.home.ui.generated.resources.Res
 import productbrowserapp.feature.home.ui.generated.resources.profile
 
 @Composable
-fun ProductDetailsScreen(navHostController: NavHostController, id: String) {
+fun ProductDetailsScreen(navHostController: NavHostController) {
 
     val viewModel = koinViewModel<ProductDetailsViewModel>()
 
@@ -53,8 +54,10 @@ fun ProductDetailsScreen(navHostController: NavHostController, id: String) {
     var isLoading by remember { mutableStateOf(false) }
     var isRefresh by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit){
+        viewModel.onEvents(ProductDetailsUiEvents.Init)
+    }
 
-    println("id is $id")
 
     isLoading = uiState.showLoading
     HandleUiEvents(viewModel.event)
@@ -85,7 +88,7 @@ fun ProductDetailsScreen(navHostController: NavHostController, id: String) {
                     state = state, // Pass the state
                     isRefreshing = isRefresh, // Observe the loading state
                     onRefresh = { isRefresh = false
-                        viewModel.onEvents(ProductDetailsUiEvents.SwipeRefresh(id.toInt()))
+                        viewModel.onEvents(ProductDetailsUiEvents.SwipeRefresh)
                     } // Trigger data refresh
                 ) {
                     if (isInternetOn) {

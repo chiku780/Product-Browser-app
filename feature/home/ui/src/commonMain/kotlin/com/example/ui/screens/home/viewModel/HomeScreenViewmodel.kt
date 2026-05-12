@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.connectivityStatus.ConnectivityStatus
 import com.example.domain.events.homeScreen.AllProductList
+import com.example.domain.useCases.GetAllProductListUseCases
 import com.example.domain.useCases.GetAllProductUseCases
 import com.example.domain.useCases.SearchProductUseCases
 import com.example.ui.events.UiEvent
@@ -30,7 +31,8 @@ class HomeScreenViewmodel(
     private val getAllProductUseCases: GetAllProductUseCases,
     private val searchProductUseCases: SearchProductUseCases,
     connectivityStatus : ConnectivityStatus,
-    private val navArgsShare : NavArgsShare
+    private val navArgsShare : NavArgsShare,
+    private val getAllProductListUseCases: GetAllProductListUseCases
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeScreenUiState> = MutableStateFlow(HomeScreenUiState())
@@ -53,6 +55,7 @@ class HomeScreenViewmodel(
         observerQuery()
     }
 
+
     private fun observerQuery(){
         viewModelScope.launch {
             _query
@@ -72,6 +75,13 @@ class HomeScreenViewmodel(
     }
 
 
+    private fun getAllProduct(){
+        viewModelScope.launch {
+            getAllProductListUseCases().collect {
+                println("here data $it")
+            }
+        }
+    }
 
     fun onEvents(events: HomeScreenUiEvents){
         when (events) {

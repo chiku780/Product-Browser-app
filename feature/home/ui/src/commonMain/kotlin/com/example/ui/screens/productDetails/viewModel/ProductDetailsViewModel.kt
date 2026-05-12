@@ -26,7 +26,7 @@ class ProductDetailsViewModel (
 ) : ViewModel() {
 
     init {
-        navArgsShare?.id?.let { getProductDetails(it) }
+//        navArgsShare?.id?.let { getProductDetails(it) }
     }
 
     private val _uiState: MutableStateFlow<ProductScreenUiState> = MutableStateFlow(ProductScreenUiState())
@@ -44,13 +44,12 @@ class ProductDetailsViewModel (
 
     fun onEvents(events: ProductDetailsUiEvents){
         when (events) {
-            is ProductDetailsUiEvents.ProductDetailsApiCall -> {
-                println("working")
-                events?.id?.let { getProductDetails(it) }
-            }
+
             is ProductDetailsUiEvents.SwipeRefresh -> {
                 navArgsShare?.id?.let { getProductDetails(it) }
             }
+
+            ProductDetailsUiEvents.Init -> navArgsShare?.id?.let { getProductDetails(it) }
         }
     }
 

@@ -56,8 +56,7 @@ object HomeNavgraph : BaseNavGraph {
             }
 
             composable(
-                route = "${NavigationHomeRoute.ProductDetails.route}/{id}",
-                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                route = NavigationHomeRoute.ProductDetails.route,
                 enterTransition = enterTransition,
                 exitTransition = exitTransition,
                 popEnterTransition = popEnterTransition,
@@ -66,7 +65,7 @@ object HomeNavgraph : BaseNavGraph {
 //                val id = backStackEntry.arguments?.getString("id") ?: ""
 
 //                print("here is is $id")
-                ProductDetailsScreen(navHostController,"5")
+                ProductDetailsScreen(navHostController)
             }
 
         }

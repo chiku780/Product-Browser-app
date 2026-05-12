@@ -39,6 +39,7 @@ kotlin {
             api(projects.feature.home.data)
             api(projects.feature.home.domain)
             api(projects.core.network)
+            api(projects.core.database)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

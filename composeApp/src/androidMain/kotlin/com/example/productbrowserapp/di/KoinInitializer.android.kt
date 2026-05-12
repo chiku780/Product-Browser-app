@@ -3,6 +3,8 @@ package com.example.productbrowserapp.di
 import android.content.Context
 import com.example.common.di.androidCommonModule
 import com.example.data.di.getHomeDataModule
+import com.example.database.di.androidDatastoreModule
+import com.example.database.di.dataBaseModule
 import com.example.domain.di.getHomeDomainModule
 import com.example.network.di.coreNetworkModule
 import com.example.ui.di.getHomeUiModule
@@ -20,7 +22,9 @@ actual class KoinInitializer(
                 getHomeDataModule(),
                 getHomeUiModule(),
                 coreNetworkModule(),
-                androidCommonModule
+                androidCommonModule,
+                androidDatastoreModule,
+                dataBaseModule,
             )
         }
     }

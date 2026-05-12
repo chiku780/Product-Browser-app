@@ -1,6 +1,5 @@
 package com.example.ui.screens.productDetails
 
-import com.example.domain.model.Product
 
 data class ProductScreenUiState(
     val showLoading : Boolean = false,
