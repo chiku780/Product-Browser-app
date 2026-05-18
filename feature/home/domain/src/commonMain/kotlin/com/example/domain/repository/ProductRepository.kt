@@ -16,8 +16,9 @@ interface ProductRepository {
     }
 
     interface Local {
-        suspend fun saveProduct()
-        suspend fun getProduct() : Flow<List<ProductListDb>>
+        suspend fun saveProduct(list: List<Product>)
+        suspend fun getProduct() : Flow<List<Product>>
+        suspend fun searchProduct(query: String) : Flow<List<Product>>
     }
 
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.connectivityStatus.ConnectivityStatus
 import com.example.domain.events.homeScreen.AllProductList
+import com.example.domain.useCases.GetAllProductListSearchUseCases
 import com.example.domain.useCases.GetAllProductListUseCases
 import com.example.domain.useCases.GetAllProductUseCases
 import com.example.domain.useCases.SearchProductUseCases
@@ -32,7 +33,8 @@ class HomeScreenViewmodel(
     private val searchProductUseCases: SearchProductUseCases,
     connectivityStatus : ConnectivityStatus,
     private val navArgsShare : NavArgsShare,
-    private val getAllProductListUseCases: GetAllProductListUseCases
+    private val getAllProductListUseCases: GetAllProductListUseCases,
+    private val getAllProductListSearchUseCases: GetAllProductListSearchUseCases
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeScreenUiState> = MutableStateFlow(HomeScreenUiState())
@@ -53,6 +55,7 @@ class HomeScreenViewmodel(
     init {
         getAllProducts()
         observerQuery()
+        getAllProduct()
     }
 
 
@@ -62,13 +65,11 @@ class HomeScreenViewmodel(
                 .debounce(500)
                 .distinctUntilChanged()
                 .flatMapLatest { query ->
-
                     when {
                         query.isEmpty() -> flow { emit(getAllProducts()) }
                         query.length >= 2 -> flow { emit(searchProducts(query)) }
                         else -> emptyFlow()
                     }
-
                 }
                 .collect()
         }
@@ -77,8 +78,12 @@ class HomeScreenViewmodel(
 
     private fun getAllProduct(){
         viewModelScope.launch {
-            getAllProductListUseCases().collect {
-                println("here data $it")
+            getAllProductListUseCases().collect { list ->
+                _uiState.update {
+                    it.copy(
+                        productList = list
+                    )
+                }
             }
         }
     }
@@ -111,21 +116,39 @@ class HomeScreenViewmodel(
     }
 
    private fun searchProducts(search: String){
-       viewModelScope.launch {
-           searchProductUseCases(search).collectWithUiHandling(
-               scope = this,
-               onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
-               uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
-               onSuccess = { data ->
-                   val result = data as? AllProductList ?: return@collectWithUiHandling
-                   _uiState.update {
-                       it.copy(
-                           productList = result.productList
-                       )
-                   }
-               },
-           )
-       }
+       searchProductLocal(search)
+       searchProductRefresh(search)
+    }
+
+    private fun searchProductLocal(search: String){
+        viewModelScope.launch {
+            getAllProductListSearchUseCases(search).collect { list ->
+                println("show the lis $list")
+                _uiState.update {
+                    it.copy(
+                        productList = list
+                    )
+                }
+            }
+        }
+    }
+
+    private fun searchProductRefresh(search: String){
+        viewModelScope.launch {
+            searchProductUseCases(search).collectWithUiHandling(
+                scope = this,
+                onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
+                uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
+                onSuccess = { data ->
+                    val result = data as? AllProductList ?: return@collectWithUiHandling
+//                    _uiState.update {
+//                        it.copy(
+//                            productList = result.productList
+//                        )
+//                    }
+                },
+            )
+        }
     }
 
     private fun getAllProducts(){
@@ -133,15 +156,7 @@ class HomeScreenViewmodel(
             getAllProductUseCases().collectWithUiHandling(
                 scope = this,
                 onLoading = { loading -> _uiState.update { it.copy(showLoading = loading) } },
-                uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) },
-                onSuccess = { data ->
-                    val result = data as? AllProductList ?: return@collectWithUiHandling
-                    _uiState.update {
-                        it.copy(
-                            productList = result.productList
-                        )
-                    }
-                },
+                uiError = { message -> _event.emit(UiEvent.ShowUiError(message)) }
             )
         }
     }

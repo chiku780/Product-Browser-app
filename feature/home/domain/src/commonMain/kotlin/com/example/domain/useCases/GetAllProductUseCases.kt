@@ -30,13 +30,7 @@ class GetAllProductUseCases(private val repository: ProductRepository.Remote,
                     is ApiResult.Success -> {
                         try {
                             val result = baseResult.data
-//                            emit(HomeScreenEvents.GetAllProductList(result?.products))
-                            emit(BaseResult.Success(
-                                AllProductList(
-                                    result.products
-                                )
-                            ))
-                            repositoryLocal.saveProduct()
+                            repositoryLocal.saveProduct(result.products)
                         } catch (e: Exception) {
                             emit(BaseResult.Error(e ))
                         }

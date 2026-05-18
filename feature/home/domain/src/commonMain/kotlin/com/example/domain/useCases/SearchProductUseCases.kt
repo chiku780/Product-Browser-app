@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
-class SearchProductUseCases(private val repository: ProductRepository.Remote) {
+class SearchProductUseCases(private val repository: ProductRepository.Remote,
+                            private val repositoryLocal: ProductRepository.Local) {
     operator fun invoke(query:String) = flow {
         println("code is working")
         repository.searchProducts(query)
@@ -29,11 +30,12 @@ class SearchProductUseCases(private val repository: ProductRepository.Remote) {
                     is ApiResult.Success -> {
                         try {
                             val result = baseResult.data
-                            emit(BaseResult.Success(
-                                AllProductList(
-                                    result.products
-                                )
-                            ))
+//                            emit(BaseResult.Success(
+//                                AllProductList(
+//                                    result.products
+//                                )
+//                            ))
+                            repositoryLocal.saveProduct(result.products)
                             println("token is $result")
                         } catch (e: Exception) {
                             emit(BaseResult.Error(e ))

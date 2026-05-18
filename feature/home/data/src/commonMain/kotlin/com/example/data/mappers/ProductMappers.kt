@@ -3,6 +3,7 @@ package com.example.data.mappers
 import com.example.data.model.AllProductResponse
 import com.example.data.model.ProductsItem
 import com.example.data.model.ReviewsItem
+import com.example.database.model.ProductListDb
 import com.example.domain.model.Product
 import com.example.domain.model.ProductList
 import com.example.domain.model.Review
@@ -54,5 +55,53 @@ fun ReviewsItem.toDomain(): Review {
         date = date.orEmpty(),
         reviewerName = reviewerName.orEmpty(),
         reviewerEmail = reviewerEmail.orEmpty()
+    )
+}
+
+
+fun Product.toProductListDb(): ProductListDb {
+    return ProductListDb(
+        id = id.toLong(),
+        title = title,
+        description = description,
+        category = category,
+        price = price,
+        discountPercentage = discountPercentage,
+        rating = rating,
+        stock = stock.toLong(),
+        brand = brand,
+        sku = sku,
+        weight = weight,
+        warrantyInformation = warrantyInformation,
+        shippingInformation = shippingInformation,
+        availabilityStatus = availabilityStatus,
+        returnPolicy = returnPolicy,
+        minimumOrderQuantity = minimumOrderQuantity.toLong(),
+        thumbnail = thumbnail
+    )
+}
+
+fun ProductListDb.toDomain(): Product {
+    return Product(
+        id = id.toInt(),
+        title = title,
+        description = description,
+        category = category,
+        price = price,
+        discountPercentage = discountPercentage,
+        rating = rating,
+        stock = stock.toInt(),
+        tags = emptyList(),
+        brand = brand,
+        sku = sku,
+        weight = weight,
+        warrantyInformation = warrantyInformation,
+        shippingInformation = shippingInformation,
+        availabilityStatus = availabilityStatus,
+        returnPolicy = returnPolicy,
+        minimumOrderQuantity = minimumOrderQuantity.toInt(),
+        thumbnail = thumbnail,
+        images = emptyList(),
+        reviews = emptyList()
     )
 }

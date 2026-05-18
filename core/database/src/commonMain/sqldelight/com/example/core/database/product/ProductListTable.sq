@@ -1,18 +1,46 @@
 CREATE TABLE ProductListTable (
-    id TEXT PRIMARY KEY ,
-    name TEXT,
-    role TEXT
+  id INTEGER PRIMARY KEY,
+  title TEXT ,
+  description TEXT,
+  category TEXT,
+  price REAL,
+  discountPercentage REAL,
+  rating REAL,
+  stock INTEGER,
+  brand TEXT,
+  sku TEXT,
+  weight REAL,
+  warrantyInformation TEXT,
+  shippingInformation TEXT,
+  availabilityStatus TEXT,
+  returnPolicy TEXT,
+  minimumOrderQuantity INTEGER,
+  thumbnail TEXT
 );
 
 insertProduct:
-INSERT OR REPLACE INTO ProductListTable(id, name,role)
-VALUES (?, ?,?);
+INSERT OR REPLACE INTO ProductListTable(id, title,description,category,price,discountPercentage,rating,stock,brand,
+sku,weight,warrantyInformation,shippingInformation,availabilityStatus,returnPolicy,minimumOrderQuantity,thumbnail)
+VALUES (?, ?,?,?, ?,?,?, ?,?,?, ?,?,?, ?,?,?, ?);
 
 
 getAllProduct:
 SELECT *
-FROM ProductListTable;
+FROM ProductListTable
+LIMIT 20;
 
+
+searchProducts:
+SELECT *
+FROM ProductListTable
+WHERE title LIKE '%' || :query || '%'
+ORDER BY id ASC;
+
+getProductById:
+SELECT *
+FROM ProductListTable
+WHERE id = :id
+LIMIT 1;
 
 removeAllProduct:
 DELETE FROM ProductListTable;
