@@ -3,6 +3,7 @@ package com.example.ui.di
 import com.example.domain.useCases.GetAllProductUseCases
 import com.example.domain.useCases.ProductDetailsUseCases
 import com.example.domain.useCases.SearchProductUseCases
+import com.example.ui.screens.ballPhysics.viewModel.BallScreenViewmodel
 import com.example.ui.screens.home.viewModel.HomeScreenViewmodel
 import com.example.ui.screens.productDetails.viewModel.ProductDetailsViewModel
 import com.example.ui.screens.share.NavArgsShare
@@ -26,6 +27,9 @@ fun getHomeUiModule() = module {
             connectivityStatus = get(),
             navArgsShare = get ()
         )
+    }
+    viewModel {
+        BallScreenViewmodel(get(),get())
     }
     single { NavArgsShare() }
 }

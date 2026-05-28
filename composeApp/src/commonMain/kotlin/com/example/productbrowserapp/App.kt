@@ -23,6 +23,8 @@ import androidx.navigation.compose.rememberNavController
 import com.appynitty.ui.colors.CustomColorsConstant
 import com.example.common.navigation.NavigationHomeRoute
 import com.example.ui.navigation.HomeNavgraph
+import com.example.ui.screens.ballPhysics.BallScreen
+import com.example.ui.screens.ballPhysics.BallScreenGyro
 import com.example.ui.statusBar.SetStatusBarColor
 import org.jetbrains.compose.resources.painterResource
 
@@ -34,16 +36,19 @@ fun App() {
         val navHostController = rememberNavController()
         SetStatusBarColor(CustomColorsConstant.ColorPrimary, darkIcons = false)
         val bottomPadding = WindowInsets.statusBars.asPaddingValues().calculateBottomPadding()
-            NavHost(navHostController, startDestination = NavigationHomeRoute.Root.route) {
-                listOf(
-                    HomeNavgraph,
-                ).forEach {
-                    it.build(
-                        modifier = Modifier.padding(top = bottomPadding).fillMaxSize(),
-                        navHostController = navHostController,
-                        navGraphBuilder = this,
-                    )
-                }
-            }
+//        BallScreen()
+        BallScreenGyro()
+
+//            NavHost(navHostController, startDestination = NavigationHomeRoute.Root.route) {
+//                listOf(
+//                    HomeNavgraph,
+//                ).forEach {
+//                    it.build(
+//                        modifier = Modifier.padding(top = bottomPadding).fillMaxSize(),
+//                        navHostController = navHostController,
+//                        navGraphBuilder = this,
+//                    )
+//                }
+//            }
     }
 }

@@ -10,5 +10,7 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+   <key>NSMotionUsageDescription</key>
+   <string>Motion access required for bottle physics.</string>
 </dict>
 </plist>

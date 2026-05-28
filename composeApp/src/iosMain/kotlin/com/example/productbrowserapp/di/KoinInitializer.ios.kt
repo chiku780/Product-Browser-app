@@ -7,6 +7,7 @@ import com.example.database.di.iosDatabaseModule
 import com.example.domain.di.getHomeDomainModule
 import com.example.network.di.coreNetworkModule
 import com.example.ui.di.getHomeUiModule
+import com.example.ui.di.getIosUidi
 import org.koin.core.context.startKoin
 
 actual class KoinInitializer {
@@ -19,7 +20,8 @@ actual class KoinInitializer {
                 coreNetworkModule(),
                 iosCommonModule,
                 dataBaseModule,
-                iosDatabaseModule
+                iosDatabaseModule,
+                getIosUidi()
             )
         }
     }
